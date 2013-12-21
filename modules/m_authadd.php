@@ -15,7 +15,7 @@ class amodkey{
 		$core->registerCommand("listpriv", "authadd", "Lista los privilegios de un usuario. Sintaxis: listpriv <usuario>");
 		$core->registerCommand("addpriv", "authadd", "Da privilegios a un usuario. Sintaxis: addpriv <usuario> <privilegios> <sector>",9, CUSTOMPRIV);
 		$core->registerCommand("delpriv", "authadd", "Quita privilegios a un usuario. Sintaxis: delpriv <usuario> <privilegios> <sector>",9, CUSTOMPRIV);
-		$core->registerCommand("listusers", "authadd", "Lista los usuarios actualmente registrados");
+		$core->registerCommand("listusers", "authadd", "Lista los usuarios actualmente registrados", 1);
 
 	}
 	
@@ -24,7 +24,8 @@ class amodkey{
 		$r="Usuarios actualmente registrados: ";
 		foreach($users as $val){$r.="{$val->username}, ";}
 		$r = trim($r,", ");
-		$irc->message(SMARTIRC_TYPE_CHANNEL, $data->channel, $r);
+		//$irc->message(SMARTIRC_TYPE_CHANNEL, $data->channel, $r);
+		$core->message($data->channel, $r);
 		
 	}
 	public function register(&$irc, &$data, &$core){
@@ -71,7 +72,7 @@ class amodkey{
 	public function delpriv_priv(&$irc, &$data, &$core){return $this->addpriv_priv($irc,$data,$core);}
 	public function addpriv(&$irc, &$data, &$core){
 		if(!isset($data->messageex[3])){$irc->message(SMARTIRC_TYPE_CHANNEL, $data->channel, "\00305Error:\003 Faltan parámetros!!"); return 0;}
-		if($data->messageex[2]>9){$irc->message(SMARTIRC_TYPE_CHANNEL, $data->channel, "\00305Error:\003 Error de usuario. Inserte otro usuario y presione enter. (No se pueden otorgar privilegios de nivel 10!!)"); return 0;}
+		if(($data->messageex[2]>9) && ($data->messageex[3] == "*")){$irc->message(SMARTIRC_TYPE_CHANNEL, $data->channel, "\00305Error:\003 Error de usuario. Inserte otro usuario y presione enter. (No se pueden otorgar privilegios de nivel 10!!)"); return 0;}
 		$user = ORM::for_table('users')->where('username', strtolower($data->messageex[1]))->find_one(); 
 		if(!$user){$irc->message(SMARTIRC_TYPE_CHANNEL, $data->channel, "\00305Error:\003 El usuario no existe!"); return 0;}
 		if(!is_numeric($data->messageex[2])){$irc->message(SMARTIRC_TYPE_CHANNEL, $data->channel, "\00305Error:\003 Los privilegios deben ser un número entre el cero y el nueve."); return 0;}
